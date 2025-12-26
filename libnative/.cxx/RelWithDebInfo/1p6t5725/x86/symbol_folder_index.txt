@@ -1,0 +1,1 @@
+D:\FU\Android_Code\TFObjectDetectionDemoApp-master -90_TestModelAnhHieu_moblienetSSD7\libnative\build\intermediates\cxx\RelWithDebInfo\1p6t5725\obj\x86
