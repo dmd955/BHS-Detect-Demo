@@ -54,7 +54,7 @@ public class TFLiteObjectDetectionAPIModel implements Classifier {
   private static final Logger LOGGER = new Logger();
 
   // Only return this many results.
-  private static final int NUM_DETECTIONS = 10;
+  private static final int NUM_DETECTIONS = 25;
   // Float model
   private static final float IMAGE_MEAN = 127.5f;
   private static final float IMAGE_STD = 127.5f;
@@ -248,21 +248,24 @@ public class TFLiteObjectDetectionAPIModel implements Classifier {
       // and label files sometimes include a background entry at index 0.
       // Make label lookup robust in case the provided labels.txt only contains
       // a single class (e.g., "người").
-      int labelOffset = 1;
+      int labelOffset = 0;
       int classIndex = (int) outputClasses[0][i];
+      if(classIndex!=0){     //mở ra nếu chỉ muốn nhận dạng người
+          continue;
+      }
       int labelIndex = classIndex + labelOffset;
       String label = "";
-//      if (labelIndex >= 0 && labelIndex < labels.size()) {      // nếu muốn hiện tag name thì mở ra
-//        label = labels.get(labelIndex);
-//      } else if (classIndex >= 0 && classIndex < labels.size()) {
-//        // fallback: maybe labels file is 0-indexed
-//        label = labels.get(classIndex);
-//      } else if (!labels.isEmpty()) {
-//        // final fallback: use first label
-//        label = labels.get(0);
-//      } else {
-//        label = "unknown";
-//      }
+      if (labelIndex > 0 && labelIndex < labels.size()) {      // nếu muốn hiện tag name thì mở ra
+        label = labels.get(labelIndex);
+      } else if (classIndex >= 0 && classIndex < labels.size()) {
+        // fallback: maybe labels file is 0-indexed
+        label = labels.get(classIndex);
+      } else if (!labels.isEmpty()) {
+        // final fallback: use first label
+        label = labels.get(0);
+      } else {
+        label = "unknown";
+      }
 
        recognitions.add(
            new Recognition(

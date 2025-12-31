@@ -37,8 +37,9 @@ import org.tensorflow.lite.examples.detection.tflite.Classifier.Recognition;
 
 /** A tracker that handles non-max suppression and matches existing objects to new detections. */
 public class MultiBoxTracker {
-  private static final float TEXT_SIZE_DIP = 18;
-  private static final float MIN_SIZE = 16.0f;
+    private static final float MIN_IOU_FOR_TRACKING = 0.5f;
+  private static final float TEXT_SIZE_DIP = 15;
+  private static final float MIN_SIZE = 8.0f;
   private static final int[] COLORS = {
     Color.BLUE,
     Color.RED,
@@ -76,7 +77,7 @@ public class MultiBoxTracker {
 
     boxPaint.setColor(Color.RED);
     boxPaint.setStyle(Style.STROKE);
-    boxPaint.setStrokeWidth(5.0f);
+    boxPaint.setStrokeWidth(2.0f);
     boxPaint.setStrokeCap(Cap.ROUND);
     boxPaint.setStrokeJoin(Join.ROUND);
     boxPaint.setStrokeMiter(100);
@@ -92,6 +93,7 @@ public class MultiBoxTracker {
     frameWidth = width;
     frameHeight = height;
     this.sensorOrientation = sensorOrientation;
+    frameToCanvasMatrix = null;
   }
   
   public synchronized void setZoomFactor(float zoom) {
@@ -107,16 +109,11 @@ public class MultiBoxTracker {
     boxPaint.setColor(Color.RED);
     boxPaint.setAlpha(200);
     boxPaint.setStyle(Style.STROKE);
-    boxPaint.setStrokeWidth(8.0f);    // viền của bounding box
+    boxPaint.setStrokeWidth(2.0f);    // viền của bounding box
 
     for (final Pair<Float, RectF> detection : screenRects) {
       final RectF rect = new RectF(detection.second);
-      
-      // Mở rộng bounding box thêm 20px về 4 góc
-//       rect.left += 28000;
-//       rect.top += 1000000;
-//       rect.right += 28000;
-//       rect.bottom += 10000;
+
       
       canvas.drawRect(rect, boxPaint);
       canvas.drawText("" + detection.first, rect.left, rect.top, textPaint);
@@ -182,8 +179,10 @@ public class MultiBoxTracker {
 
 
       // RỘNG BOUNDING BOX LÊN PHÍA TRÊN - giảm giá trị top để mở rộng lên
-//      trackedPos.top -= 0.03f * Math.abs(trackedPos.top);
-
+//      trackedPos.top += 0.3f * Math.abs(trackedPos.top);
+//      trackedPos.bottom -= 0.3f * Math.abs(trackedPos.bottom);
+//      trackedPos.left -= 0.3f * Math.abs(trackedPos.left);
+//        trackedPos.right -= 0.3f * Math.abs(trackedPos.right);
 
 
 
@@ -211,7 +210,7 @@ public class MultiBoxTracker {
     logger.d("======================");
   }
 
-  private void processResults(final List<Recognition> results) {
+  private void processResults(final List<Recognition>  results) {
     final List<Pair<Float, Recognition>> rectsToTrack = new LinkedList<Pair<Float, Recognition>>();
 
     screenRects.clear();
@@ -247,36 +246,36 @@ public class MultiBoxTracker {
 
     // xóa vòng for mếu như k cần lọc nested box
     
-    List<Pair<Float, Recognition>> filteredRects = new LinkedList<>();
-    
-    for (int i = 0; i < rectsToTrack.size(); i++) {
-      Pair<Float, Recognition> current = rectsToTrack.get(i);
-      RectF currentRect = current.second.getLocation();
-      boolean isNested = false;
-      
-      // Check if current box is completely inside any other box
-      for (int j = 0; j < rectsToTrack.size(); j++) {
-        if (i == j) continue; // Skip self comparison
-        
-        Pair<Float, Recognition> other = rectsToTrack.get(j);
-        RectF otherRect = other.second.getLocation();
-        
-        // Check if current box is completely contained within other box
-        if (isCompletelyInside(currentRect, otherRect)) {
-          logger.d("Box %s [%.1f,%.1f,%.1f,%.1f] is nested inside %s [%.1f,%.1f,%.1f,%.1f] - removing nested box",
-                   current.second.getTitle(), currentRect.left, currentRect.top, currentRect.right, currentRect.bottom,
-                   other.second.getTitle(), otherRect.left, otherRect.top, otherRect.right, otherRect.bottom);
-          isNested = true;
-          break;
-        }
-      }
-      
-      if (!isNested) {
-        filteredRects.add(current);
-      }
-    }
-    
-    logger.d("Filtered boxes: %d -> %d (removed %d nested boxes)", 
+    List<Pair<Float, Recognition>> filteredRects = new LinkedList<>(rectsToTrack);
+
+//    for (int i = 0; i < rectsToTrack.size(); i++) {
+//      Pair<Float, Recognition> current = rectsToTrack.get(i);
+//      RectF currentRect = current.second.getLocation();
+//      boolean isNested = false;
+//
+//      // Check if current box is completely inside any other box
+//      for (int j = 0; j < rectsToTrack.size(); j++) {
+//        if (i == j) continue; // Skip self comparison
+//
+//        Pair<Float, Recognition> other = rectsToTrack.get(j);
+//        RectF otherRect = other.second.getLocation();
+//
+//        // Check if current box is completely contained within other box
+//        if (isCompletelyInside(currentRect, otherRect)) {
+//          logger.d("Box %s [%.1f,%.1f,%.1f,%.1f] is nested inside %s [%.1f,%.1f,%.1f,%.1f] - removing nested box",
+//                   current.second.getTitle(), currentRect.left, currentRect.top, currentRect.right, currentRect.bottom,
+//                   other.second.getTitle(), otherRect.left, otherRect.top, otherRect.right, otherRect.bottom);
+//          isNested = true;
+//          break;
+//        }
+//      }
+//
+//      if (!isNested) {
+//        filteredRects.add(current);
+//      }
+//    }
+
+    logger.d("Filtered boxes: %d -> %d (removed %d nested boxes)",
              rectsToTrack.size(), filteredRects.size(), rectsToTrack.size() - filteredRects.size());
 
 
@@ -302,7 +301,35 @@ public class MultiBoxTracker {
            inner.bottom <= outer.bottom;
   }
 
-  private static class TrackedRecognition {
+    private float calculateIoU(RectF rect1, RectF rect2) {
+        // Tìm tọa độ của hình chữ nhật giao nhau (phần chung)
+        final float xA = Math.max(rect1.left, rect2.left);
+        final float yA = Math.max(rect1.top, rect2.top);
+        final float xB = Math.min(rect1.right, rect2.right);
+        final float yB = Math.min(rect1.bottom, rect2.bottom);
+
+        // Tính diện tích phần giao nhau
+        // Math.max(0, ...) để đảm bảo diện tích không bị âm nếu 2 box không giao nhau
+        final float intersectionArea = Math.max(0, xB - xA) * Math.max(0, yB - yA);
+
+        // Tính diện tích của mỗi hình chữ nhật
+        final float rect1Area = (rect1.right - rect1.left) * (rect1.bottom - rect1.top);
+        final float rect2Area = (rect2.right - rect2.left) * (rect2.bottom - rect2.top);
+
+        // Tính diện tích phần hợp (tổng diện tích - phần chung)
+        final float unionArea = rect1Area + rect2Area - intersectionArea;
+
+        // Tránh lỗi chia cho 0
+        if (unionArea <= 0) {
+            return 0.0f;
+        }
+
+        // Trả về tỷ lệ IoU
+        return intersectionArea / unionArea;
+    }
+
+
+    private static class TrackedRecognition {
     RectF location;
     float detectionConfidence;
     int color;

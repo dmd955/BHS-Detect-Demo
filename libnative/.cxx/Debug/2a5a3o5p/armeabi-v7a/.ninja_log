@@ -1,0 +1,28 @@
+# ninja log v5
+84	415	7887812793999638	CMakeFiles/nativelib.dir/module/mp3/lame/mpglib_interface.c.o	1e0bcdc895c8cca5
+49	928	7887812799590447	CMakeFiles/nativelib.dir/module/mp3/lame/fft.c.o	21cc243b497edfa0
+128	1012	7887812799512452	CMakeFiles/nativelib.dir/module/mp3/lame/presets.c.o	1eb3a468cbc4ea6f
+59	1059	7887812799789180	CMakeFiles/nativelib.dir/module/mp3/lame/gain_analysis.c.o	a1b38445093f0c1b
+237	1074	7887812801060113	CMakeFiles/nativelib.dir/module/mp3/lame/takehiro.c.o	327015d7781bc9c
+36	1077	7887812801150988	CMakeFiles/nativelib.dir/module/mp3/lame/encoder.c.o	152518dd203fffd9
+272	1079	7887812801568636	CMakeFiles/nativelib.dir/utils/logger.cpp.o	23433a06f8405458
+260	1094	7887812801946095	CMakeFiles/nativelib.dir/module/mp3/lame/version.c.o	1a624d983b3ba793
+117	1182	7887812801845437	CMakeFiles/nativelib.dir/module/mp3/lame/newmdct.c.o	7e7502c279f1b69e
+98	1199	7887812802563193	CMakeFiles/nativelib.dir/module/mp3/lame/id3tag.c.o	f7f1a8d404115398
+139	1201	7887812802442364	CMakeFiles/nativelib.dir/module/mp3/lame/quantize.c.o	2f8376aed24d31e1
+13	1205	7887812802641165	CMakeFiles/nativelib.dir/module/mp3/lame/bitstream.c.o	43430eb4192e6952
+282	1217	7887812803038718	CMakeFiles/nativelib.dir/module/yuv/yuv.cpp.o	9504e2f809cdac5f
+3	1220	7887812802998480	CMakeFiles/nativelib.dir/module/mp3/lame/VbrTag.c.o	1fdf9b8e2d8e63d9
+211	1252	7887812802303852	CMakeFiles/nativelib.dir/module/mp3/lame/tables.c.o	e0532513acc0f2f9
+197	1259	7887812802122321	CMakeFiles/nativelib.dir/module/mp3/lame/reservoir.c.o	5f19c08a55bd48be
+149	1269	7887812803192344	CMakeFiles/nativelib.dir/module/mp3/lame/quantize_pvt.c.o	953782fc5eded19a
+929	1310	7887812804153183	CMakeFiles/nativelib.dir/module/mp3/mp3.cpp.o	297b9fedabcb3dba
+70	1338	7887812804372160	CMakeFiles/nativelib.dir/module/mp3/lame/lame.c.o	ec97eacb317fe1c7
+1013	1350	7887812804530747	CMakeFiles/nativelib.dir/proxy/proxy_mp3.cpp.o	d6158c7b95caa2c1
+222	1375	7887812804769754	CMakeFiles/nativelib.dir/module/mp3/lame/util.c.o	bf1a554d0c41c5f7
+171	1449	7887812805572560	CMakeFiles/nativelib.dir/module/mp3/lame/set_get.c.o	76ca8be9b1cfa20c
+417	1478	7887812805860166	CMakeFiles/nativelib.dir/proxy/proxy_yuv.cpp.o	afeece8ecb8e0c84
+248	1501	7887812806078437	CMakeFiles/nativelib.dir/module/mp3/lame/vbrquantize.c.o	ae8f602550b4b742
+160	1531	7887812806338620	CMakeFiles/nativelib.dir/module/mp3/lame/psymodel.c.o	e0e426dea4b92b39
+1060	3644	7887812827431159	CMakeFiles/nativelib.dir/nativelib.cpp.o	77f8ce431ffc14cf
+3651	3861	7887812829601318	D:/FU/Android_Code/TFObjectDetectionDemoApp-master -90_TestModelAnhHieu_moblienetSSD7/libnative/build/intermediates/cxx/Debug/2a5a3o5p/obj/armeabi-v7a/libnativelib.so	dccb21b1b811db4
